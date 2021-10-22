@@ -1,0 +1,181 @@
+import turtle
+import random
+
+screen = turtle.Screen()
+screen.setup(800,800)
+screen.bgcolor("gray")
+score = 0
+total_score = 0
+Turtle = turtle.Turtle
+class Wall(Turtle):
+  def __init__(self):
+    super().__init__(self)
+    self.speed(0)
+    self.color("black")
+    self.penup()
+    #wall.goto(-380,380)
+    self.shape("square")
+
+
+class Enimy(Turtle):
+  def __init__(self, x, y):
+    super().__init__(self)
+    self.color("red")
+    self.shape("circle")
+    self.penup()
+    self.speed(0)
+    self.goto(x, y)
+    self.direction = random.choice(["Up", "Down", "Right", "Left"])
+    
+  def move(self):
+    dirE = self.direction
+    if dirE == "Up":
+      point_x = 0
+      point_y = 24
+    elif dirE == "Down":
+      point_x = 0
+      point_y = -24
+    elif dirE == "Left":
+      point_x = -24
+      point_y = 0
+    elif dirE == "Right":
+      point_x = 24
+      point_y  = 0
+    else :
+      point_x = 0
+      point_y  = 0
+    cord_x = self.xcor() + point_x
+    cord_y = self.ycor() + point_y
+    if (cord_x, cord_y) not in walls:
+      self.goto(cord_x,cord_y)
+    else:
+      self.direction = random.choice(["Up", "Down", "Right", "Left"])
+
+    screen.ontimer(self.move, random.randint(200, 500))
+
+class Traser(Turtle):
+  def __init__(self, x, y):
+    super().__init__(self)
+    self.color("gold")
+    self.penup()
+    self.speed(0)
+    self.shape("circle")
+    self.goto(x,y)
+    self.waight = 10
+    
+  def distroy(self):
+    self.goto(2000,2000)
+    self.hideturtle()
+
+class Player(Turtle):
+  def __init__(self):
+    super().__init__(self)
+    self.color("white")
+    self.penup()
+    self.speed(0)
+    self.shape("square")
+    
+  def move(self,x,y):
+    if (x,y) not in walls:
+      self.goto(x,y)
+    
+  def move_up(self):
+    x_cord = player.xcor()
+    y_cord = player.ycor() + 24
+    self.move(x_cord,y_cord)
+  def move_down(self):
+    x_cord = player.xcor()
+    y_cord = player.ycor() - 24
+    self.move(x_cord,y_cord)
+  def move_left(self):
+    x_cord = player.xcor() - 24
+    y_cord = player.ycor() 
+    self.move(x_cord,y_cord)
+  def move_right(self):
+    x_cord = player.xcor() + 24
+    y_cord = player.ycor() 
+    self.move(x_cord,y_cord)
+  
+  def is_collide(self,the_traser):
+    if self.xcor() == the_traser.xcor() and self.ycor() == the_traser.ycor()  :
+      return True
+      
+  def distroy(self):
+    self.goto(2000,2000)
+    self.hideturtle()
+
+levels = [""]
+walls = []
+enimys = []
+trasers = []
+level = [
+  "KKKKKKKKKKKKKKKKKK",
+  "K   K    K  K    K",
+  "K U     KK  K  KKK",
+  "K   K    K     T K",
+  "KKKKKKK  KKK   KKK",
+  "KT         K   K K",
+  "K        T K   K K",
+  "KKKK   K K K     K",
+  "K TK   K K KKK   K",
+  "K  K   K K K     K",
+  "K      KKK K   KKK",
+  "K  K             K",
+  "K  K     A       K",
+  "KKKKKK     KKK KKK",
+  "K  K K     K    KK",
+  "KKKKKKKKKKKKKKKKKK",
+
+  ]
+levels.append(level)
+wall = Wall()
+player = Player()
+level_1st = levels[1]
+for i in range(len(level_1st)):
+  for j in range(len(level_1st[i])):
+    char = level_1st[i][j]
+    x_chor = -180 + (j*24)
+    y_chor = 180 - (i*24)
+    if char == "K":
+      wall.goto(x_chor, y_chor)
+      wall.stamp()
+      walls.append((x_chor,y_chor))
+    if char == "A":
+      enimys.append(Enimy(x_chor, y_chor))
+    if char == "T":
+      trasers.append(Traser(x_chor, y_chor))
+    if char == "U":
+      player.goto(x_chor,y_chor)
+screen.tracer(0)
+for enimy in enimys :
+  screen.ontimer(enimy.move, 1000)
+
+screen.listen()
+screen.onkey(player.move_up, "up")
+screen.onkey(player.move_down, "down")
+screen.onkey(player.move_left, "left")
+screen.onkey(player.move_right, "right")
+while True:
+  for traser in trasers :
+    if player.is_collide(traser):
+      score += traser.waight
+      total_score = score
+      traser.distroy()
+      trasers.remove(traser)
+      print("score is: {}".format(score))
+    if len(trasers) <= 0:
+      traser.distroy()
+      print("Total score is: {}".format(total_score))
+      screen.tracer(0)
+      
+  for enimy in enimys :
+    if player.is_collide(enimy):
+      player.distroy()
+      enimys.remove(enimy)
+  screen.update()
+  if len(trasers) <= 0:
+    break
+  if len(enimys) <= 0:
+    break
+
+
